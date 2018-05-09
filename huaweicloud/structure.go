@@ -1,7 +1,10 @@
 package huaweicloud
 
-import "encoding/json"
-
+import (
+	"encoding/json"
+	"gopkg.in/yaml.v2"
+	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
+)
 // Takes list of pointers to strings. Expand to an array
 // of raw strings and returns a []interface{}
 // to keep compatibility w/ schema.NewSetschema.NewSet
@@ -44,3 +47,39 @@ func normalizeJsonString(jsonString interface{}) (string, error) {
 
 	return string(bytes[:]), nil
 }
+// Takes a value containing YAML string and passes it through
+// the YAML parser. Returns either a parsing
+// error or original YAML string.
+func checkYamlString(yamlString interface{}) (string, error) {
+	var y interface{}
+
+	if yamlString == nil || yamlString.(string) == "" {
+		return "", nil
+	}
+
+	s := yamlString.(string)
+
+	err := yaml.Unmarshal([]byte(s), &y)
+	if err != nil {
+		return s, err
+	}
+
+	return s, nil
+}
+
+func normalizeStackTemplate(templateString interface{}) (string, error) {
+	if looksLikeJsonString(templateString) {
+		return normalizeJsonString(templateString.(string))
+	}
+
+	return checkYamlString(templateString)
+}
+func flattenStackOutputs(stackOutputs []*stacks.Output) map[string]string {
+	outputs := make(map[string]string, len(stackOutputs))
+	for _, o := range stackOutputs {
+		outputs[*o.OutputKey] = *o.OutputValue
+		outputs[o.Description] = o.Description
+	}
+	return outputs
+}
+

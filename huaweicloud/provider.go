@@ -178,6 +178,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_kms_key_v1":             dataSourceKmsKeyV1(),
 			"huaweicloud_kms_data_key_v1":        dataSourceKmsDataKeyV1(),
 			"huaweicloud_rds_flavors_v1":         dataSourceRdsFlavorV1(),
+			"huaweicloud_rts_stack_v1": 			  dataSourceStackV1(),
+			"huaweicloud_rts_stack_resource_v1":  	  dataSourceRtsStackResourcesV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -224,6 +226,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_nat_snat_rule_v2":                resourceNatSnatRuleV2(),
 			"huaweicloud_ces_alarmrule":                   resourceAlarmRule(),
 			"huaweicloud_vpc_eip_v1":                      resourceVpcEIPV1(),
+			"huaweicloud_rts_stack_v1":					   resourceRtsStackV1(),
 		},
 
 		ConfigureFunc: configureProvider,
