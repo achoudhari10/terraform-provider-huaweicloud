@@ -164,7 +164,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 			Flavor:d.Get("flavor").(string),
 			Version:d.Get("cluster_version").(string),
 			Description:d.Get("description").(string),
-			HostNetwork: clusters.HostNetwokSpec{VpcId:d.Get("vpc_id").(string),
+			HostNetwork: clusters.HostNetworkSpec{VpcId:d.Get("vpc_id").(string),
 												 SubnetId:d.Get("subnet_id").(string),
 												 HighwaySubnet:d.Get("highway_subnet_id").(string),} ,
 			ContainerNetwork:clusters.ContainerNetworkSpec{Mode:d.Get("container_network_type").(string),
