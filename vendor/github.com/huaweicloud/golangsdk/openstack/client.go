@@ -332,6 +332,12 @@ func NewCDNV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	return initClientOpts(client, eo, "cdn")
 }
 
+// NewCCEV1 creates a ServiceClient that may be used to access the v1
+// cce service.
+func NewCCEV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	return initClientOpts(client, eo, "cce")
+}
+
 // NewOrchestrationV1 creates a ServiceClient that may be used to access the v1
 // orchestration service.
 func NewOrchestrationV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -475,5 +481,31 @@ func NewNatV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 func NewMapReduceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "mrs")
 	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewAntiDDoSV1 creates a ServiceClient that may be used with the v1 Anti DDoS Service
+// package.
+func NewAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "antiddos")
+	sc.ResourceBase = sc.Endpoint + "v1/" + client.ProjectID + "/"
+	return sc, err
+}
+
+// NewAntiDDoSV2 creates a ServiceClient that may be used with the v2 Anti DDoS Service
+// package.
+func NewAntiDDoSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "antiddos")
+	sc.ResourceBase = sc.Endpoint + "v2/" + client.ProjectID + "/"
+	return sc, err
+}
+
+func NewCCEHWV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "compute")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "cce", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "api/v3/projects", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
+	sc.ResourceBase = sc.Endpoint
+	sc.Type = "cce"
 	return sc, err
 }
