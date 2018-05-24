@@ -332,12 +332,6 @@ func NewCDNV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gol
 	return initClientOpts(client, eo, "cdn")
 }
 
-// NewCCEV1 creates a ServiceClient that may be used to access the v1
-// cce service.
-func NewCCEV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	return initClientOpts(client, eo, "cce")
-}
-
 // NewOrchestrationV1 creates a ServiceClient that may be used to access the v1
 // orchestration service.
 func NewOrchestrationV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {

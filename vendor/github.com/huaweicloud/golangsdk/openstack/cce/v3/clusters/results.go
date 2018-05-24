@@ -4,12 +4,18 @@ import (
 	"github.com/huaweicloud/golangsdk"
 )
 
+type ListClusterResponse struct {
+	Kind       string     `json:"kind"`
+	ApiVersion string     `json:"apiVersion"`
+	Clusters   []Clusters `json:"items"`
+}
+
 type Clusters struct {
 	// API type, fixed value Cluster
 	Kind string `json:"kind" required:"true"`
 	//API version, fixed value v3
 	ApiVersion string `json:"apiversion" required:"true"`
-	//Medata of a Cluster
+	//Metadata of a Cluster
 	Metadata MetaData `json:"metadata" required:"true"`
 	//specifications of a Cluster
 	Spec Spec `json:"spec" required:"true"`
@@ -40,7 +46,7 @@ type Spec struct {
 	//Cluster description
 	Description string `json:"description,omitempty"`
 	// Node network parameters
-	HostNetwork HostNetwokSpec `json:"hostNetwork" required:"true"`
+	HostNetwork HostNetworkSpec `json:"hostNetwork" required:"true"`
 	//Container network parameters
 	ContainerNetwork ContainerNetworkSpec `json:"containerNetwork" required:"true"`
 	// Charging mode of the cluster, which is 0 (on demand)
@@ -50,7 +56,7 @@ type Spec struct {
 }
 
 // Node network parameters
-type HostNetwokSpec struct {
+type HostNetworkSpec struct {
 	//The ID of the VPC used to create the node
 	VpcId string `json:"vpc" required:"true"`
 	//The ID of the subnet used to create the node
@@ -80,6 +86,7 @@ type Status struct {
 	//Kube-apiserver access address in the cluster
 	Endpoints Endpoints `json:"endpoints"`
 }
+
 type Conditions struct {
 	//The type of component
 	Type string `json:"type"`
@@ -88,6 +95,7 @@ type Conditions struct {
 	//The reason that the component becomes current
 	Reason string `json:"reason"`
 }
+
 type Endpoints struct {
 	//The address accessed within the user's subnet
 	Internal string `json:"internal"`
@@ -100,6 +108,17 @@ func (r commonResult) Extract() (*Clusters, error) {
 	var s Clusters
 	err := r.ExtractInto(&s)
 	return &s, err
+}
+
+// ExtractCluster is a function that accepts a ListOpts struct, which allows you to filter and sort
+// the returned collection for greater efficiency.
+func (r commonResult) ExtractCluster(opts ListOpts) ([]Clusters, error) {
+	var s ListClusterResponse
+	err := r.ExtractInto(&s)
+	if err != nil {
+		return nil, err
+	}
+	return FilterClusters(s.Clusters, opts)
 }
 
 type commonResult struct {
@@ -127,5 +146,11 @@ type UpdateResult struct {
 // DeleteResult represents the result of a delete operation. Call its ExtractErr
 // method to determine if the request succeeded or failed.
 type DeleteResult struct {
+	commonResult
+}
+
+// ListResult represents the result of a list operation. Call its Extract
+// method to interpret it as a Cluster.
+type ListResult struct {
 	commonResult
 }
