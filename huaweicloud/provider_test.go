@@ -27,6 +27,7 @@ var (
 	OS_ACCESS_KEY             = os.Getenv("OS_ACCESS_KEY")
 	OS_SECRET_KEY             = os.Getenv("OS_SECRET_KEY")
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
+	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
 )
@@ -127,6 +128,17 @@ func testAccPreCheckELB(t *testing.T) {
 
 	if OS_TENANT_ID == "" {
 		t.Skip("This environment does not support ELB tests")
+	}
+}
+
+func testAccPreCheckCCE(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_VPC_ID  == "" {
+		t.Skip("OS_VPC_ID must be set for CCE acceptance tests")
+	}
+	if OS_SUBNET_ID  == "" {
+		t.Skip("OS_SUBNET_ID must be set for CCE acceptance tests")
 	}
 }
 

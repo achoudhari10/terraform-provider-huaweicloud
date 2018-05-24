@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"fmt"
 )
 
 // DefaultUserAgent is the default User-Agent string set in the request header.
@@ -240,6 +241,7 @@ func (client *ProviderClient) Request(method, url string, options *RequestOpts) 
 	if !ok {
 		body, _ := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
+		fmt.Printf("Error body: %s.\n", body)
 		respErr := ErrUnexpectedResponseCode{
 			URL:      url,
 			Method:   method,

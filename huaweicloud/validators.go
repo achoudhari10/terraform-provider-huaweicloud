@@ -3,6 +3,7 @@ package huaweicloud
 import (
 	"fmt"
 	"time"
+	"regexp"
 )
 
 func ValidateStringList(v interface{}, k string, l []string) (ws []string, errors []error) {
@@ -70,5 +71,22 @@ func validateKmsKeyStatus(v interface{}, k string) (ws []string, errors []error)
 			"%q must contain a valid status, expected %s or %s or %s, got %s.",
 			k, EnabledState, DisabledState, PendingDeletionState, status))
 	}
+	return
+}
+
+func validateClusterName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if len(value) > 24 {
+		errors = append(errors, fmt.Errorf(
+			"%q cannot be longer than 24 characters: %q", k, value))
+	}
+
+	pattern := `^[\.\-a-z0-9]+$`
+	if !regexp.MustCompile(pattern).MatchString(value) {
+		errors = append(errors, fmt.Errorf(
+			"%q doesn't comply with restrictions (%q): %q",
+			k, pattern, value))
+	}
+
 	return
 }
