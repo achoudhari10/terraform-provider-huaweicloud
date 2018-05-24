@@ -800,6 +800,12 @@
 			"revisionTime": "2018-05-18T09:21:43Z"
 		},
 		{
+			"checksumSHA1": "5p1dt4jwWqtPTxy6h21eJa5roFE=",
+			"path": "github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters",
+			"revision": "129af7f47cfeb75ce1564ed91029bdb79e7aab79",
+			"revisionTime": "2018-05-23T10:09:15Z"
+		},
+		{
 			"checksumSHA1": "lpp6hBnX9xBhrnxXc0i/5fHHoWY=",
 			"path": "github.com/huaweicloud/golangsdk/openstack/cloudeyeservice/alarmrule",
 			"revision": "f751fd90605bf71b96f3e7a5ae5f994a7f98984c",
