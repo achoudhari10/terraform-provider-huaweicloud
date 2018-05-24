@@ -10,12 +10,12 @@ import (
 "time"
 )
 
-func resourceCceClusterV3() *schema.Resource {
+func resourceCCEClusterV3() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCceClusterV3Create,
-		Read:   resourceCceClusterV3Read,
-		Update: resourceCceClusterV3Update,
-		Delete: resourceCceClusterV3Delete,
+		Create: resourceCCEClusterV3Create,
+		Read:   resourceCCEClusterV3Read,
+		Update: resourceCCEClusterV3Update,
+		Delete: resourceCCEClusterV3Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -35,12 +35,12 @@ func resourceCceClusterV3() *schema.Resource {
 			},
 			"kind": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				Default:"Cluster",
 			},
 			"api_version": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				Default:"v3",
 			},
 			"name": &schema.Schema{
@@ -143,7 +143,7 @@ func resourceClusterExtendParamV3(d *schema.ResourceData) map[string]string {
 	return m
 }
 
-func resourceCceClusterV3Create(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
 
@@ -190,7 +190,7 @@ func resourceCceClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	stateConf := &resource.StateChangeConf{
 		Pending:	[]string{"Creating"},
 		Target:     []string{"Available"},
-		Refresh:    waitForCceClusterActive(cceClient, create.Metadata.Id),
+		Refresh:    waitForCCEClusterActive(cceClient, create.Metadata.Id),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -199,15 +199,15 @@ func resourceCceClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	_, err = stateConf.WaitForState()
 	d.SetId(create.Metadata.Id)
 
-	return resourceCceClusterV3Read(d, meta)
+	return resourceCCEClusterV3Read(d, meta)
 
 }
 
-func resourceCceClusterV3Read(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud Cce client: %s", err)
+		return fmt.Errorf("Error creating OpenTelekomCloud CCE client: %s", err)
 	}
 
 	n, err := clusters.Get(cceClient, d.Id()).Extract()
@@ -217,7 +217,7 @@ func resourceCceClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving OpenTelekomCloud Vpc: %s", err)
+		return fmt.Errorf("Error retrieving OpenTelekomCloud CCE: %s", err)
 	}
 
 	log.Printf("[DEBUG] Retrieved cluster %s: %+v", d.Id(), n)
@@ -247,7 +247,7 @@ func resourceCceClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceCceClusterV3Update(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
 	if err != nil {
@@ -269,10 +269,10 @@ func resourceCceClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 	}
 
 
-	return resourceCceClusterV3Read(d, meta)
+	return resourceCCEClusterV3Read(d, meta)
 }
 
-func resourceCceClusterV3Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy CCE cluster: %s", d.Id())
 
 	config := meta.(*Config)
@@ -287,7 +287,7 @@ func resourceCceClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"Deleting","Available","Unavailable"},
 		Target:     []string{"Deleted"},
-		Refresh:    waitForCceClusterDelete(cceClient, d.Id()),
+		Refresh:    waitForCCEClusterDelete(cceClient, d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
@@ -303,7 +303,7 @@ func resourceCceClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func waitForCceClusterActive(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func waitForCCEClusterActive(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := clusters.Get(cceClient, clusterId).Extract()
 		if err != nil {
@@ -317,7 +317,7 @@ func waitForCceClusterActive(cceClient *golangsdk.ServiceClient, clusterId strin
 	}
 }
 
-func waitForCceClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
+func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete OpenTelekomCloud CCE cluster %s.\n", clusterId)
 
