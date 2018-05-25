@@ -226,7 +226,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_nat_snat_rule_v2":                resourceNatSnatRuleV2(),
 			"huaweicloud_ces_alarmrule":                   resourceAlarmRule(),
 			"huaweicloud_vpc_eip_v1":                      resourceVpcEIPV1(),
-			"huaweicloud_cce_cluster_v3":              	   resourceCceClusterV3(),
+			"huaweicloud_cce_cluster_v3":              	 resourceCCEClusterV3(),
 		},
 
 		ConfigureFunc: configureProvider,
