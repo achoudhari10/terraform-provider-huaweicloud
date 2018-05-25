@@ -30,6 +30,7 @@ var (
 	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
 	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
+	OS_CLUSTER_ID			   = os.Getenv("OS_CLUSTER_ID")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -309,4 +310,12 @@ func envVarFile(varName string) (string, error) {
 		return "", fmt.Errorf("Error closing temp file: %s", err)
 	}
 	return tmpFile.Name(), nil
+}
+
+func testAccPreCheckCCENode(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_CLUSTER_ID == "" {
+		t.Fatal("OS_CLUSTER_ID must be set for acceptance tests")
+	}
 }

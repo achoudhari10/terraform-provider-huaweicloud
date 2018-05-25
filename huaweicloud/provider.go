@@ -179,6 +179,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloud_kms_data_key_v1":        dataSourceKmsDataKeyV1(),
 			"huaweicloud_rds_flavors_v1":         dataSourceRdsFlavorV1(),
 			"huaweicloud_cce_cluster_v3":	      dataSourceCCEClusterV3(),
+			"huaweicloud_cce_nodes_v3":           dataSourceCceNodesV3(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

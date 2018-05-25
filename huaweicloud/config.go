@@ -499,4 +499,3 @@ func (c *Config) getHwEndpointType() golangsdk.Availability {
 	}
 	return golangsdk.AvailabilityPublic
 }
-
