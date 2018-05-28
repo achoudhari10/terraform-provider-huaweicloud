@@ -33,16 +33,6 @@ func resourceCCEClusterV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"kind": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:"Cluster",
-			},
-			"api_version": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:"v3",
-			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -150,12 +140,12 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("[DEBUG] Value of CCE Client: %#v", cceClient)
 
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud cluster Client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud cluster Client: %s", err)
 	}
 
 	createOpts := clusters.CreateOpts{
-		Kind:       d.Get("kind").(string),
-		ApiVersion: d.Get("api_version").(string),
+		Kind:      "Cluster",
+		ApiVersion:"v3",
 		Metadata:   clusters.CreateMetaData{Name: d.Get("name").(string),
 											Labels:resourceClusterLablesV3(d),
 											Annotations:resourceClusterAnnotationsV3(d)},
@@ -179,13 +169,13 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 	create,err := clusters.Create(cceClient, createOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud Cluster: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud Cluster: %s", err)
 	}
 
 
 	log.Printf("[INFO] cluster ID: %s",create.Metadata.Id)
 
-	log.Printf("[DEBUG] Waiting for OpenTelekomCloud CCE cluster (%s) to become available",create.Metadata.Id)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud CCE cluster (%s) to become available",create.Metadata.Id)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:	[]string{"Creating"},
@@ -207,7 +197,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud CCE client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud CCE client: %s", err)
 	}
 
 	n, err := clusters.Get(cceClient, d.Id()).Extract()
@@ -217,7 +207,7 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return fmt.Errorf("Error retrieving OpenTelekomCloud CCE: %s", err)
+		return fmt.Errorf("Error retrieving HuaweiCloud CCE: %s", err)
 	}
 
 	log.Printf("[DEBUG] Retrieved cluster %s: %+v", d.Id(), n)
@@ -225,8 +215,6 @@ func resourceCCEClusterV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("id", n.Metadata.Id)
 	d.Set("name", n.Metadata.Name)
 	d.Set("status", n.Status.Phase)
-	d.Set("kind", n.Kind)
-	d.Set("api_version", n.ApiVersion)
 	d.Set("labels", n.Metadata.Labels)
 	d.Set("flavor", n.Spec.Flavor)
 	d.Set("cluster_version", n.Spec.Version)
@@ -251,7 +239,7 @@ func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud CCE Client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
 
 	var updateOpts clusters.UpdateOpts
@@ -265,7 +253,7 @@ func resourceCCEClusterV3Update(d *schema.ResourceData, meta interface{}) error 
 	_,err = clusters.Update(cceClient, d.Id(), updateOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error updating OpenTelekomCloud CCE: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud CCE: %s", err)
 	}
 
 
@@ -278,11 +266,11 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud CCE Client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud CCE Client: %s", err)
 	}
 	_,err = clusters.Delete(cceClient, d.Id()).Extract()
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenTelekomCloud CCE Cluster: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud CCE Cluster: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"Deleting","Available","Unavailable"},
@@ -296,7 +284,7 @@ func resourceCCEClusterV3Delete(d *schema.ResourceData, meta interface{}) error 
 	_, err = stateConf.WaitForState()
 
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenTelekomCloud CCE cluster: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud CCE cluster: %s", err)
 	}
 
 	d.SetId("")
@@ -319,21 +307,21 @@ func waitForCCEClusterActive(cceClient *golangsdk.ServiceClient, clusterId strin
 
 func waitForCCEClusterDelete(cceClient *golangsdk.ServiceClient, clusterId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenTelekomCloud CCE cluster %s.\n", clusterId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud CCE cluster %s.\n", clusterId)
 
 		r, err := clusters.Get(cceClient, clusterId).Extract()
 
 		log.Printf("[DEBUG] Value after extract: %#v", r)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenTelekomCloud CCE cluster %s", clusterId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud CCE cluster %s", clusterId)
 				return r, "Deleted", nil
 			}
 		}
 		if r.Status.Phase == "Deleting" {
 			return r, "Deleting", nil
 		}
-		log.Printf("[DEBUG] OpenTelekomCloud CCE cluster %s still available.\n", clusterId)
+		log.Printf("[DEBUG] HuaweiCloud CCE cluster %s still available.\n", clusterId)
 		return r, "Available", nil
 	}
 }

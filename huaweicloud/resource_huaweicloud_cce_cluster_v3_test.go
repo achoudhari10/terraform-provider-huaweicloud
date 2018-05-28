@@ -27,10 +27,6 @@ func TestAccCCEClusterV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "status", "Available"),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "kind", "Cluster"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "api_version", "v3"),
-					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "cluster_type", "VirtualMachine"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "flavor", "cce.s1.small"),
