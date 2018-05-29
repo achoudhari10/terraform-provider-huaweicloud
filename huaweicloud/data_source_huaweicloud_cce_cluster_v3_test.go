@@ -20,7 +20,7 @@ func TestAccHuaweiCloudCCEClusterV3DataSource_basic(t *testing.T) {
 				Config: testAccHuaweiCloudCCEClusterV3DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3DataSourceID("data.huaweicloud_cce_cluster_v3.clusters"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "name", "huaweicloud_cce_cluster"),
+					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "name", "huaweicloud_cce"),
 					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "status", "Available"),
 					resource.TestCheckResourceAttr("data.huaweicloud_cce_cluster_v3.clusters", "cluster_type", "VirtualMachine"),
 				),
@@ -48,14 +48,13 @@ var testAccHuaweiCloudCCEClusterV3DataSource_cluster = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   kind = "Cluster"
   api_version = "v3"
-  name = "test-terraform"
+  name = "huaweicloud_cce"
   cluster_type = "VirtualMachine"
   flavor = "cce.s1.small"
   cluster_version = "v1.7.3-r10"
   vpc_id = "%s"
   subnet_id = "%s"
   container_network_type = "overlay_l2"
-  description = "update1111"
 }`, OS_VPC_ID, OS_SUBNET_ID)
 
 var testAccHuaweiCloudCCEClusterV3DataSource_basic = fmt.Sprintf(`
