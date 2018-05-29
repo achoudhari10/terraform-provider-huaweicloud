@@ -20,17 +20,6 @@ func dataSourceCceNodesV3() *schema.Resource {
 				ForceNew: true,
 			},
 
-			"kind": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-
-			"apiversion": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
 			"cluster_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -123,8 +112,7 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
-			"public_ip_ids": &schema.Schema{
+			"eip_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -134,23 +122,11 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"spec_count": &schema.Schema{
+			"node_count": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"job_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"reason": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"message": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"publicip_id_count": &schema.Schema{
+			"eip_count": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
@@ -219,9 +195,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Node.Metadata.Uid, Node)
 	d.SetId(Node.Metadata.Uid)
-	d.Set("kind", Node.Kind)
 	d.Set("node_id", Node.Metadata.Uid)
-	d.Set("apiversion", Node.Apiversion)
 	d.Set("name", Node.Metadata.Name)
 	d.Set("flavor", Node.Spec.Flavor)
 	d.Set("az", Node.Spec.Az)
@@ -240,12 +214,9 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("public_ip", Node.Status.PublicIP)
 	d.Set("private_ip", Node.Status.PrivateIP)
 	d.Set("spec_extend_param", Node.Spec.ExtendParam)
-	d.Set("spec_count", Node.Spec.Count)
-	d.Set("job_id", Node.Status.JobID)
-	d.Set("reason", Node.Status.Reason)
-	d.Set("message", Node.Status.Message)
-	d.Set("publicip_id_count", Node.Spec.PublicIP.Count)
-	d.Set("public_ip_ids", PublicIDs)
+	d.Set("node_count", Node.Spec.Count)
+	d.Set("eip_count", Node.Spec.PublicIP.Count)
+	d.Set("eip_ids", PublicIDs)
 
 	return nil
 }
