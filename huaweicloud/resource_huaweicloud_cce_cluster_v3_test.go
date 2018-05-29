@@ -10,18 +10,18 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/cce/v3/clusters"
 )
 
-func TestAccCCEClusterV1_basic(t *testing.T) {
+func TestAccCCEClusterV3_basic(t *testing.T) {
 	var cluster clusters.Clusters
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckCCE(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV1Destroy,
+		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCCEClusterV1_basic,
+				Config: testAccCCEClusterV3_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV1Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
+					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "name", "huaweicloud-cce-cluster"),
 					resource.TestCheckResourceAttr(
@@ -37,7 +37,7 @@ func TestAccCCEClusterV1_basic(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				Config: testAccCCEClusterV1_update,
+				Config: testAccCCEClusterV3_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "description", "new description"),
@@ -48,25 +48,25 @@ func TestAccCCEClusterV1_basic(t *testing.T) {
 }
 
 // PASS
-func TestAccCCEClusterV1_timeout(t *testing.T) {
+func TestAccCCEClusterV3_timeout(t *testing.T) {
 	var cluster clusters.Clusters
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckCCE(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCCEClusterV1Destroy,
+		CheckDestroy: testAccCheckCCEClusterV3Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCCEClusterV1_timeout,
+				Config: testAccCCEClusterV3_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCCEClusterV1Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
+					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckCCEClusterV1Destroy(s *terraform.State) error {
+func testAccCheckCCEClusterV3Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	cceClient, err := config.cceV3Client(OS_REGION_NAME)
 	if err != nil {
@@ -87,7 +87,7 @@ func testAccCheckCCEClusterV1Destroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckCCEClusterV1Exists(n string, cluster *clusters.Clusters) resource.TestCheckFunc {
+func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -119,7 +119,7 @@ func testAccCheckCCEClusterV1Exists(n string, cluster *clusters.Clusters) resour
 	}
 }
 
-var testAccCCEClusterV1_basic = fmt.Sprintf(`
+var testAccCCEClusterV3_basic = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   kind="Cluster"
   api_version="v3"
@@ -132,7 +132,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   container_network_type="overlay_l2"
 }`, OS_VPC_ID, OS_SUBNET_ID)
 
-var testAccCCEClusterV1_update = fmt.Sprintf(`
+var testAccCCEClusterV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   kind="Cluster"
   api_version="v3"
@@ -146,7 +146,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   description="new description"
 }`, OS_VPC_ID, OS_SUBNET_ID)
 
-var testAccCCEClusterV1_timeout = fmt.Sprintf(`
+var testAccCCEClusterV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
   kind="Cluster"
   api_version="v3"
