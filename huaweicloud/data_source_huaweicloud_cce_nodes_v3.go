@@ -15,9 +15,7 @@ func dataSourceCceNodesV3() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 
 			"cluster_id": &schema.Schema{
@@ -37,64 +35,64 @@ func dataSourceCceNodesV3() *schema.Resource {
 
 			"flavor": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"az": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 
 			"sshkey": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"charge_mode": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"size": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 			"share_type": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"ip_type": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"disk_size": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 			"volume_type": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"extend_param": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"data_volumes": &schema.Schema{
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"disk_size": &schema.Schema{
 							Type:     schema.TypeInt,
-							Optional: true,
+							Computed: true,
 						},
 						"volume_type": &schema.Schema{
 							Type:     schema.TypeString,
-							Optional: true,
+							Computed: true,
 						},
 					},
 				},
 			},
 			"billing_mode": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 			"phase": &schema.Schema{
 				Type:     schema.TypeString,
@@ -102,33 +100,33 @@ func dataSourceCceNodesV3() *schema.Resource {
 			},
 			"server_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"public_ip": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"private_ip": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"eip_ids": &schema.Schema{
 				Type:     schema.TypeSet,
-				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"spec_extend_param": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"node_count": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 			"eip_count": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
+				Computed: true,
 			},
 		},
 	}
