@@ -121,8 +121,6 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 
 var testAccCCEClusterV3_basic = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  kind="Cluster"
-  api_version="v3"
   name = "huaweicloud-cce-cluster"
   cluster_type="VirtualMachine"
   flavor="cce.s1.small"
@@ -134,8 +132,6 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 
 var testAccCCEClusterV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  kind="Cluster"
-  api_version="v3"
   name = "huaweicloud-cce-cluster"
   cluster_type="VirtualMachine"
   flavor="cce.s1.small"
@@ -148,8 +144,6 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 
 var testAccCCEClusterV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  kind="Cluster"
-  api_version="v3"
   name = "huaweicloud-cce-cluster"
   cluster_type="VirtualMachine"
   flavor="cce.s1.small"

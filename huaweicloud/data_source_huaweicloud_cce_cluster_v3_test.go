@@ -46,8 +46,6 @@ func testAccCheckCCEClusterV3DataSourceID(n string) resource.TestCheckFunc {
 
 var testAccHuaweiCloudCCEClusterV3DataSource_cluster = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  kind = "Cluster"
-  api_version = "v3"
   name = "huaweicloud_cce"
   cluster_type = "VirtualMachine"
   flavor = "cce.s1.small"
