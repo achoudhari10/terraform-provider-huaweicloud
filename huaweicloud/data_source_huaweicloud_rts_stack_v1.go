@@ -31,26 +31,23 @@ func dataSourceStackV1() *schema.Resource {
 			},
 			"status_reason": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"outputs": {
 				Type:     schema.TypeMap,
-				Optional: true,
 				Computed: true,
 			},
 			"parameters": &schema.Schema{
 				Type:     schema.TypeMap,
-				Optional: true,
 				Computed: true,
 			},
 			"timeout_mins": &schema.Schema{
 				Type:     schema.TypeInt,
-				Optional: true,
-
+				Computed: true,
 			},
 			"id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -58,7 +55,6 @@ func dataSourceStackV1() *schema.Resource {
 			},
 			"disable_rollback": &schema.Schema{
 				Type:     schema.TypeBool,
-				Optional: true,
 				Computed: true,
 			},
 			"capabilities":  &schema.Schema{
@@ -87,7 +83,7 @@ func dataSourceStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud rts client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
 	}
 	listOpts := stacks.ListOpts{
 		Status:        	d.Get("status").(string),

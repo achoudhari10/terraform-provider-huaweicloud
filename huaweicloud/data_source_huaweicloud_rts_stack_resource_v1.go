@@ -35,23 +35,23 @@ func dataSourceRtsStackResourcesV1() *schema.Resource {
 			},
 			"links": &schema.Schema{
 				Type:     schema.TypeList,
-				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"href": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 						"rel": &schema.Schema{
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 						},
 					},
 				},
 			},
 			"required_by":&schema.Schema{
 				Type:     schema.TypeSet,
-				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -61,7 +61,7 @@ func dataSourceRtsStackResourcesV1() *schema.Resource {
 			},
 			"resource_status_reason": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional:true,
+				Computed: true,
 			},
 			"physical_resource_id": &schema.Schema{
 				Type:     schema.TypeString,

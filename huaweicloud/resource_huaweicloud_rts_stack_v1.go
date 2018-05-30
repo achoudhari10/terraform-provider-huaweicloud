@@ -137,7 +137,7 @@ func resourceRtsStackV1Create(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Value of orchestration client: %#v", orchestrationClient)
 
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud orchestration client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud orchestration client: %s", err)
 	}
 
 	rollback := d.Get("disable_rollback").(bool)
@@ -154,12 +154,12 @@ func resourceRtsStackV1Create(d *schema.ResourceData, meta interface{}) error {
 	n, err := stacks.Create(orchestrationClient, createOpts).Extract()
 
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud stack: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud stack: %s", err)
 	}
 
 	log.Printf("[INFO] stack ID: %s", n.ID)
 
-	log.Printf("[DEBUG] Waiting for OpenTelekomCloud stack (%s) to become available", n.ID)
+	log.Printf("[DEBUG] Waiting for HuaweiCloud stack (%s) to become available", n.ID)
 
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"CREATE_IN_PROGRESS",
@@ -197,13 +197,13 @@ func resourceRtsStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud orchestration Client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud orchestration Client: %s", err)
 	}
 
 	n, err := stacks.Get(orchestrationClient, d.Get("name").(string), d.Id()).Extract()
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error retrieving OpenTelekomCloud Stacks: %s", err)
+		return fmt.Errorf("Error retrieving HuaweiCloud Stacks: %s", err)
 
 	}
 
@@ -228,7 +228,7 @@ func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud orchestration Client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud orchestration Client: %s", err)
 	}
 
 	var updateOpts stacks.UpdateOpts
@@ -255,7 +255,7 @@ func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	err = stacks.Update(orchestrationClient, d.Get("name").(string), d.Id(), updateOpts).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("Error updating OpenTelekomCloud Stack: %s", err)
+		return fmt.Errorf("Error updating HuaweiCloud Stack: %s", err)
 	}
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"UPDATE_IN_PROGRESS",
@@ -288,7 +288,7 @@ func resourceRtsStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating OpenTelekomCloud orchestration Client: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloud orchestration Client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -311,7 +311,7 @@ func resourceRtsStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 	out, err := stateConf.WaitForState()
 	log.Printf("[DEBUG] outwait %+v", out)
 	if err != nil {
-		return fmt.Errorf("Error deleting OpenTelekomCloud Stack: %s", err)
+		return fmt.Errorf("Error deleting HuaweiCloud Stack: %s", err)
 	}
 
 	stack := out.(*stacks.RetrievedStack)
@@ -332,7 +332,7 @@ func waitForStackActive(orchestrationClient *golangsdk.ServiceClient, stackName 
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenTelekomCloud stack: %+v", n)
+		log.Printf("[DEBUG] HuaweiCloud stack: %+v", n)
 		if n.Status == "CREATE_IN_PROGRESS" {
 			return n, n.Status, nil
 		}
@@ -343,18 +343,18 @@ func waitForStackActive(orchestrationClient *golangsdk.ServiceClient, stackName 
 
 func waitForStackDelete(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		log.Printf("[DEBUG] Attempting to delete OpenTelekomCloud Stack %s.\n", stackId)
+		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Stack %s.\n", stackId)
 		r, err := stacks.Get(orchestrationClient, stackName, stackId).Extract()
 		log.Printf("[DEBUG] Value after extract: %#v", r)
 		if r.Status == "DELETE_COMPLETE" {
-			log.Printf("[INFO] Successfully deleted OpenTelekomCloud stack %s", r.ID)
+			log.Printf("[INFO] Successfully deleted HuaweiCloud stack %s", r.ID)
 			return r, "DELETE_COMPLETE", nil
 		}
 
 		err = stacks.Delete(orchestrationClient, stackName, stackId).ExtractErr()
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] Successfully deleted OpenTelekomCloud Stack %s", stackId)
+				log.Printf("[DEBUG] Successfully deleted HuaweiCloud Stack %s", stackId)
 				return r, r.Status, nil
 			}
 			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
@@ -366,7 +366,7 @@ func waitForStackDelete(orchestrationClient *golangsdk.ServiceClient, stackName 
 			return r, r.Status, err
 		}
 
-		log.Printf("[DEBUG] OpenTelekomCloud Stack %s still active.\n", stackId)
+		log.Printf("[DEBUG] HuaweiCloud Stack %s still active.\n", stackId)
 		return r, r.Status, nil
 	}
 }
@@ -378,7 +378,7 @@ func waitForStackUpdate(orchestrationClient *golangsdk.ServiceClient, stackName 
 			return nil, "", err
 		}
 
-		log.Printf("[DEBUG] OpenTelekomCloud stack: %+v", n)
+		log.Printf("[DEBUG] HuaweiCloud stack: %+v", n)
 		if n.Status == "UPDATE_IN_PROGRESS" {
 			return n, "UPDATE_IN_PROGRESS", nil
 		}
