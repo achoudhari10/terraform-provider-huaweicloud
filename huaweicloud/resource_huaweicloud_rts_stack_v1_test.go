@@ -1,6 +1,5 @@
 package huaweicloud
 
-
 import (
 	"fmt"
 	"testing"
@@ -12,18 +11,18 @@ import (
 )
 
 // PASS
-func TestAccHWRtsStackV1_basic(t *testing.T) {
+func TestAccRtsStackV1_basic(t *testing.T) {
 	var stacks stacks.RetrievedStack
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHWRtsStackV1Destroy,
+		CheckDestroy: testAccCheckRtsStackV1Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRtsStackV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_rts_stack_v1.stack_1", "name", "terraform_provider_stack"),
 					resource.TestCheckResourceAttr(
@@ -45,18 +44,18 @@ func TestAccHWRtsStackV1_basic(t *testing.T) {
 	})
 }
 
-func TestAccHWRtsStackV1_update(t *testing.T) {
+func TestAccRtsStackV1_update(t *testing.T) {
 	var stacks stacks.RetrievedStack
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHWRtsStackV1Destroy,
+		CheckDestroy: testAccCheckRtsStackV1Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRtsStackV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_rts_stack_v1.stack_1", "name", "terraform_provider_stack"),
 					resource.TestCheckResourceAttr(
@@ -74,7 +73,7 @@ func TestAccHWRtsStackV1_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccRtsStackV1_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_rts_stack_v1.stack_1", "disable_rollback", "false"),
 					resource.TestCheckResourceAttr(
@@ -89,25 +88,25 @@ func TestAccHWRtsStackV1_update(t *testing.T) {
 }
 
 // PASS
-func TestAccHWRtsStackV1_timeout(t *testing.T) {
+func TestAccRtsStackV1_timeout(t *testing.T) {
 	var stacks stacks.RetrievedStack
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHWRtsStackV1Destroy,
+		CheckDestroy: testAccCheckRtsStackV1Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRtsStackV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckHWRtsStackV1Destroy(s *terraform.State) error {
+func testAccCheckRtsStackV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(OS_REGION_NAME)
 	if err != nil {
@@ -121,16 +120,16 @@ func testAccCheckHWRtsStackV1Destroy(s *terraform.State) error {
 
 		stack , err := stacks.Get(orchestrationClient,"terraform_provider_stack" ,rs.Primary.ID).Extract()
 
-			if stack.Status != "DELETE_COMPLETE" {
-				return fmt.Errorf("Stack still exists %s", err)
-			}
+		if stack.Status != "DELETE_COMPLETE" {
+			return fmt.Errorf("Stack still exists %s", err)
+		}
 
 	}
 
 	return nil
 }
 
-func testAccCheckHWRtsStackV1Exists(n string, stack *stacks.RetrievedStack) resource.TestCheckFunc {
+func testAccCheckRtsStackV1Exists(n string, stack *stacks.RetrievedStack) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -196,7 +195,6 @@ resource "huaweicloud_rts_stack_v1" "stack_1" {
     }
   }
 JSON
-
 }
 `
 
@@ -234,7 +232,6 @@ resource "huaweicloud_rts_stack_v1" "stack_1" {
     }
   }
 JSON
-
 }
 `
 const testAccRtsStackV1_timeout = `
@@ -242,7 +239,6 @@ resource "huaweicloud_rts_stack_v1" "stack_1" {
   name = "terraform_provider_stack"
   disable_rollback= true
   timeout_mins=60
-
   template = <<JSON
           {
     "outputs": {
@@ -272,7 +268,6 @@ resource "huaweicloud_rts_stack_v1" "stack_1" {
     }
   }
 JSON
-
   timeouts {
     create = "5m"
     delete = "5m"

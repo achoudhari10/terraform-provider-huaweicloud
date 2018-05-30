@@ -8,13 +8,13 @@ import (
 )
 
 // PASS
-func TestAccHuaweiCloudRtsStackV1DataSource_basic(t *testing.T) {
+func TestAccRtsStackV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccHuaweiCloudRtsStackV1DataSource_basic,
+				Config: testAccRtsStackV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRtsStackV1DataSourceID("data.huaweicloud_rts_stack_v1.stacks"),
 					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "name", "huaweicloud_rts_stacktest"),
@@ -42,7 +42,7 @@ func testAccCheckRtsStackV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccHuaweiCloudRtsStackV1DataSource_basic = `
+var testAccRtsStackV1DataSource_basic = `
 resource "huaweicloud_rts_stack_v1" "stack_1" {
   name = "huaweicloud_rts_stacktest"
   disable_rollback= true
