@@ -8,19 +8,19 @@ import (
 )
 
 // PASS
-func TestAccOpenTelekomCloudRtsStackV1DataSource_basic(t *testing.T) {
+func TestAccHuaweiCloudRtsStackV1DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccOpenTelekomCloudRtsStackV1DataSource_basic,
+				Config: testAccHuaweiCloudRtsStackV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRtsStackV1DataSourceID("data.opentelekomcloud_rts_stack_v1.stacks"),
-					resource.TestCheckResourceAttr("data.opentelekomcloud_rts_stack_v1.stacks", "name", "opentelekomcloud_rts_stacktest"),
-					resource.TestCheckResourceAttr("data.opentelekomcloud_rts_stack_v1.stacks", "description", "A HOT template that create a single server and boot from volume."),
-					resource.TestCheckResourceAttr("data.opentelekomcloud_rts_stack_v1.stacks", "disable_rollback", "true"),
-					resource.TestCheckResourceAttr("data.opentelekomcloud_rts_stack_v1.stacks", "parameters.%", "4"),
+					testAccCheckRtsStackV1DataSourceID("data.huaweicloud_rts_stack_v1.stacks"),
+					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "name", "huaweicloud_rts_stacktest"),
+					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "description", "A HOT template that create a single server and boot from volume."),
+					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "disable_rollback", "true"),
+					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "parameters.%", "4"),
 				),
 			},
 		},
@@ -42,9 +42,9 @@ func testAccCheckRtsStackV1DataSourceID(n string) resource.TestCheckFunc {
 	}
 }
 
-var testAccOpenTelekomCloudRtsStackV1DataSource_basic = `
-resource "opentelekomcloud_rts_stack_v1" "stack_1" {
-  name = "opentelekomcloud_rts_stacktest"
+var testAccHuaweiCloudRtsStackV1DataSource_basic = `
+resource "huaweicloud_rts_stack_v1" "stack_1" {
+  name = "huaweicloud_rts_stacktest"
   disable_rollback= true
   timeout_mins=60
   template = <<JSON
@@ -78,9 +78,9 @@ resource "opentelekomcloud_rts_stack_v1" "stack_1" {
 JSON
 }
 
-data "opentelekomcloud_rts_stack_v1" "stacks" {
+data "huaweicloud_rts_stack_v1" "stacks" {
 
-        name = "${opentelekomcloud_rts_stack_v1.stack_1.name}"
+        name = "${huaweicloud_rts_stack_v1.stack_1.name}"
        
 }
 `

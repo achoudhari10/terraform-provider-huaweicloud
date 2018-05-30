@@ -8,29 +8,29 @@ import (
 "github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccOTCRtsStackResourcesV1DataSource_basic(t *testing.T) {
+func TestAccHWRtsStackResourcesV1DataSource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceOTCRtsStackResourcesV1Config,
+				Config: testAccDataSourceHWRtsStackResourcesV1Config,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOTCRtsStackResourcesV1DataSourceID("data.opentelekomcloud_rts_stack_resource_v1.resource_1"),
+					testAccCheckHWRtsStackResourcesV1DataSourceID("data.huaweicloud_rts_stack_resource_v1.resource_1"),
 					resource.TestCheckResourceAttr(
-						"data.opentelekomcloud_rts_stack_resource_v1.resource_1", "resource_name", "random"),
+						"data.huaweicloud_rts_stack_resource_v1.resource_1", "resource_name", "random"),
 					resource.TestCheckResourceAttr(
-						"data.opentelekomcloud_rts_stack_resource_v1.resource_1", "resource_type", "OS::Heat::RandomString"),
+						"data.huaweicloud_rts_stack_resource_v1.resource_1", "resource_type", "OS::Heat::RandomString"),
 					resource.TestCheckResourceAttr(
-						"data.opentelekomcloud_rts_stack_resource_v1.resource_1", "resource_status", "CREATE_COMPLETE"),
+						"data.huaweicloud_rts_stack_resource_v1.resource_1", "resource_status", "CREATE_COMPLETE"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckOTCRtsStackResourcesV1DataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckHWRtsStackResourcesV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -45,10 +45,10 @@ func testAccCheckOTCRtsStackResourcesV1DataSourceID(n string) resource.TestCheck
 	}
 }
 
-const testAccDataSourceOTCRtsStackResourcesV1Config  = `
+const testAccDataSourceHWRtsStackResourcesV1Config  = `
 
-resource "opentelekomcloud_rts_stack_v1" "stack_1" {
-  name = "opentelekomcloud_rts_stack"
+resource "huaweicloud_rts_stack_resource_v1" "stack_1" {
+  name = "huaweicloud_rts_stack"
   disable_rollback= true
   timeout_mins=60
   template = <<JSON
@@ -82,9 +82,9 @@ resource "opentelekomcloud_rts_stack_v1" "stack_1" {
 JSON
 }
 
-data "opentelekomcloud_rts_stack_resource_v1" "resource_1" {
-  stack_name = "${opentelekomcloud_rts_stack_v1.stack_1.name}"
-  stack_id = "${opentelekomcloud_rts_stack_v1.stack_1.id}"
+data "huaweicloud_rts_stack_resource_v1" "resource_1" {
+  stack_name = "${huaweicloud_rts_stack_resource_v1.stack_1.name}"
+  stack_id = "${huaweicloud_rts_stack_resource_v1.stack_1.id}"
   resource_name = "random"
 }
 `
