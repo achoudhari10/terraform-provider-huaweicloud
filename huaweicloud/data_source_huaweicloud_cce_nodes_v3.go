@@ -120,10 +120,6 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"node_count": &schema.Schema{
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 			"eip_count": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -212,7 +208,6 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("public_ip", Node.Status.PublicIP)
 	d.Set("private_ip", Node.Status.PrivateIP)
 	d.Set("spec_extend_param", Node.Spec.ExtendParam)
-	d.Set("node_count", Node.Spec.Count)
 	d.Set("eip_count", Node.Spec.PublicIP.Count)
 	d.Set("eip_ids", PublicIDs)
 

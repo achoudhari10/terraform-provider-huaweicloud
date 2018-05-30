@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
+var node_name = fmt.Sprintf("%s",OS_NODE_NAME)
 func TestAccCCENodesV3DataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheckCCENode(t) },
@@ -18,8 +19,7 @@ func TestAccCCENodesV3DataSource_basic(t *testing.T) {
 				Config: testAccCCENodeV3DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCENodeV3DataSourceID("data.huaweicloud_cce_nodes_v3.nodes"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cce_nodes_v3.nodes", "name", "c2c-node"),
-					resource.TestCheckResourceAttr("data.huaweicloud_cce_nodes_v3.nodes", "phase", "Abnormal"),
+					resource.TestCheckResourceAttr("data.huaweicloud_cce_nodes_v3.nodes", "name", node_name),
 				),
 			},
 		},
@@ -47,3 +47,4 @@ data "huaweicloud_cce_nodes_v3" "nodes" {
 		name = "%s"
 }
 `, OS_CLUSTER_ID,OS_NODE_NAME)
+
