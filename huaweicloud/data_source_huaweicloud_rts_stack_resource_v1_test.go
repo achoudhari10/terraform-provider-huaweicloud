@@ -47,7 +47,7 @@ func testAccCheckRtsStackResourcesV1DataSourceID(n string) resource.TestCheckFun
 
 const testAccDataSourceRtsStackResourcesV1Config  = `
 
-resource "huaweicloud_rts_stack_resource_v1" "stack_1" {
+resource "huaweicloud_rts_stack_v1" "stack_1" {
   name = "huaweicloud_rts_stack"
   disable_rollback= true
   timeout_mins=60
@@ -83,8 +83,8 @@ JSON
 }
 
 data "huaweicloud_rts_stack_resource_v1" "resource_1" {
-  stack_name = "${huaweicloud_rts_stack_resource_v1.stack_1.name}"
-  stack_id = "${huaweicloud_rts_stack_resource_v1.stack_1.id}"
+  stack_name = "${huaweicloud_rts_stack_v1.stack_1.name}"
+  stack_id = "${huaweicloud_rts_stack_v1.stack_1.id}"
   resource_name = "random"
 }
 `
