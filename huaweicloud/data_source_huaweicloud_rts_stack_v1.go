@@ -83,7 +83,7 @@ func dataSourceStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
+		return fmt.Errorf("Error retrieving HuaweiCloud rts client: %s", err)
 	}
 	listOpts := stacks.ListOpts{
 		Status:        	d.Get("status").(string),
