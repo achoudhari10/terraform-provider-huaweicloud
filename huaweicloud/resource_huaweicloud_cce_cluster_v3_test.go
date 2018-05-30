@@ -23,7 +23,7 @@ func TestAccCCEClusterV3_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCCEClusterV3Exists("huaweicloud_cce_cluster_v3.cluster_1", &cluster),
 					resource.TestCheckResourceAttr(
-						"huaweicloud_cce_cluster_v3.cluster_1", "name", "huaweicloud-cce-cluster"),
+						"huaweicloud_cce_cluster_v3.cluster_1", "name", "huaweicloud-cce"),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_cce_cluster_v3.cluster_1", "status", "Available"),
 					resource.TestCheckResourceAttr(
@@ -121,7 +121,7 @@ func testAccCheckCCEClusterV3Exists(n string, cluster *clusters.Clusters) resour
 
 var testAccCCEClusterV3_basic = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce-cluster"
+  name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
   flavor="cce.s1.small"
   cluster_version = "v1.7.3-r10"
@@ -132,7 +132,7 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 
 var testAccCCEClusterV3_update = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce-cluster"
+  name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
   flavor="cce.s1.small"
   cluster_version = "v1.7.3-r10"
@@ -144,12 +144,16 @@ resource "huaweicloud_cce_cluster_v3" "cluster_1" {
 
 var testAccCCEClusterV3_timeout = fmt.Sprintf(`
 resource "huaweicloud_cce_cluster_v3" "cluster_1" {
-  name = "huaweicloud-cce-cluster"
+  name = "huaweicloud-cce"
   cluster_type="VirtualMachine"
   flavor="cce.s1.small"
   cluster_version = "v1.7.3-r10"
-  vpc_id=""%s"
+  vpc_id="%s"
   subnet_id="%s"
   container_network_type="overlay_l2"
+    timeouts {
+    create = "5m"
+    delete = "5m"
+  }
 }
 `, OS_VPC_ID, OS_SUBNET_ID)

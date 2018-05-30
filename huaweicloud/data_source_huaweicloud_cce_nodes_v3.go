@@ -94,7 +94,7 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"phase": &schema.Schema{
+			"status": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -151,7 +151,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 		listOpts.Uid = v.(string)
 	}
 
-	if v, ok := d.GetOk("phase"); ok {
+	if v, ok := d.GetOk("status"); ok {
 		listOpts.Phase = v.(string)
 	}
 
@@ -198,7 +198,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("flavor", Node.Spec.Flavor)
 	d.Set("az", Node.Spec.Az)
 	d.Set("billing_mode", Node.Spec.BillingMode)
-	d.Set("phase", Node.Status.Phase)
+	d.Set("status", Node.Status.Phase)
 	d.Set("data_volumes", v)
 	d.Set("disk_size", Node.Spec.RootVolume.Size)
 	d.Set("volume_type", Node.Spec.RootVolume.Volumetype)

@@ -29,8 +29,9 @@ var (
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_TENANT_ID              = os.Getenv("OS_TENANT_ID")
+	OS_NODE_NAME			  =os.Getenv("OS_NODE_NAME")
 	OS_ULB_ENVIRONMENT        = os.Getenv("OS_ULB_ENVIRONMENT")
-	OS_CLUSTER_ID			   = os.Getenv("OS_CLUSTER_ID")
+	OS_CLUSTER_ID			  = os.Getenv("OS_CLUSTER_ID")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -142,7 +143,6 @@ func testAccPreCheckCCE(t *testing.T) {
 		t.Skip("OS_SUBNET_ID must be set for CCE acceptance tests")
 	}
 }
-
 func TestProvider(t *testing.T) {
 	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
@@ -314,7 +314,9 @@ func envVarFile(varName string) (string, error) {
 
 func testAccPreCheckCCENode(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
-
+	if OS_NODE_NAME  == "" {
+		t.Skip("OS_NODE_NAME must be set for CCE acceptance tests")
+	}
 	if OS_CLUSTER_ID == "" {
 		t.Fatal("OS_CLUSTER_ID must be set for acceptance tests")
 	}
