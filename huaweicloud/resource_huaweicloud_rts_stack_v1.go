@@ -57,12 +57,20 @@ func resourceRtsStackV1() *schema.Resource {
 					return template
 				},
 			},
+			"template_url": &schema.Schema{
+				Type:         schema.TypeString,
+				Required:     true,
+			},
 			"environment": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateJsonString,
 			},
-
+			"files": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateJsonString,
+			},
 			"parameters": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -108,23 +116,38 @@ func resourceRtsStackV1() *schema.Resource {
 	}
 }
 
-func resourcetemplateV1(d *schema.ResourceData) *stacks.Template {
-	rawTemplate := d.Get("template").(string)
-	template := new(stacks.Template)
-	template.Bin = []byte(rawTemplate)
-	log.Printf("[DEBUG] template: %s", template)
+func resourceTemplateV1(d *schema.ResourceData) *stacks.Template {
+	var template = new(stacks.Template)
+	if _, ok :=d.GetOk("template"); ok {
+		rawTemplate := d.Get("template").(string)
+		template.Bin = []byte(rawTemplate)
+		log.Printf("[DEBUG] template: %s", template)
+	}
+	if _, ok :=d.GetOk("template_url"); ok {
+		rawTemplate := d.Get("template_url").(string)
+		template.URL = rawTemplate
+		log.Printf("[DEBUG] template: %s", template)
+
+	}
 	return template
 }
 
-func resourceenvironmentV1(d *schema.ResourceData) *stacks.Environment {
+func resourceEnvironmentV1(d *schema.ResourceData) *stacks.Environment {
 	rawTemplate := d.Get("environment").(string)
 	environment := new(stacks.Environment)
 	environment.Bin = []byte(rawTemplate)
 	return environment
 }
-func resourceparameterV1(d *schema.ResourceData) map[string]string {
+func resourceParameterV1(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("parameters").(map[string]interface{}) {
+		m[key] = val.(string)
+	}
+	return m
+}
+func resourceFilesV1(d *schema.ResourceData) map[string]string {
+	m := make(map[string]string)
+	for key, val := range d.Get("files").(map[string]interface{}) {
 		m[key] = val.(string)
 	}
 	return m
@@ -143,10 +166,11 @@ func resourceRtsStackV1Create(d *schema.ResourceData, meta interface{}) error {
 	rollback := d.Get("disable_rollback").(bool)
 	createOpts := stacks.CreateOpts{
 		Name:            d.Get("name").(string),
-		TemplateOpts:    resourcetemplateV1(d),
+		TemplateOpts:    resourceTemplateV1(d),
+		Files:			 resourceFilesV1(d),
 		DisableRollback: &rollback,
-		EnvironmentOpts: resourceenvironmentV1(d),
-		Parameters:      resourceparameterV1(d),
+		EnvironmentOpts: resourceEnvironmentV1(d),
+		Parameters:      resourceParameterV1(d),
 		Timeout:         d.Get("timeout_mins").(int),
 	}
 
@@ -233,15 +257,15 @@ func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	var updateOpts stacks.UpdateOpts
 
-	updateOpts.TemplateOpts = resourcetemplateV1(d)
+	updateOpts.TemplateOpts = resourceTemplateV1(d)
 
 	if d.HasChange("environment") {
 
-		updateOpts.EnvironmentOpts = resourceenvironmentV1(d)
+		updateOpts.EnvironmentOpts = resourceEnvironmentV1(d)
 	}
 	if d.HasChange("parameters") {
 
-		updateOpts.Parameters = resourceparameterV1(d)
+		updateOpts.Parameters = resourceParameterV1(d)
 	}
 	if d.HasChange("timeout_mins") {
 		updateOpts.Timeout = d.Get("timeout_mins").(int)
