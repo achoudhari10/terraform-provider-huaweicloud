@@ -33,7 +33,7 @@ func testAccCheckCCENodeV3DataSourceID(n string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("node data source ID not set ")
+			return fmt.Errorf("Node data source ID not set ")
 		}
 
 		return nil

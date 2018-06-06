@@ -15,24 +15,22 @@ func dataSourceCceNodesV3() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
 				Type:     schema.TypeString,
+				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
-
 			"cluster_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"node_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"flavor": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -41,7 +39,6 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"sshkey": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -115,7 +112,6 @@ func dataSourceCceNodesV3() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
 			"spec_extend_param": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -128,7 +124,7 @@ func dataSourceCceNodesV3() *schema.Resource {
 	}
 }
 
-//filters the nodes and sets the redifined searched nodes
+
 func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	cceClient, err := config.cceV3Client(GetRegion(d, config))
@@ -137,7 +133,11 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Unable to get Nodes: %s", err)
 	}
 
-	listOpts := nodes.ListOpts{}
+	listOpts := nodes.ListOpts{
+		Uid:    d.Get("node_id").(string),
+		Name:  d.Get("name").(string),
+		Phase: d.Get("status").(string),
+	}
 
 	if v, ok := d.GetOk("name"); ok {
 		listOpts.Name = v.(string)
@@ -187,7 +187,7 @@ func dataSourceCceNodesV3Read(d *schema.ResourceData, meta interface{}) error {
 	for i, val := range pids {
 		PublicIDs[i] = val
 	}
-	log.Printf("[DEBUG] Retrieved Clusters using given filter %s: %+v", Node.Metadata.Uid, Node)
+	log.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", Node.Metadata.Uid, Node)
 	d.SetId(Node.Metadata.Uid)
 	d.Set("node_id", Node.Metadata.Uid)
 	d.Set("name", Node.Metadata.Name)

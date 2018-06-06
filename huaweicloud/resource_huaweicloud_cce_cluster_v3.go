@@ -36,14 +36,17 @@ func resourceCCEClusterV3() *schema.Resource {
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"labels": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
+				ForceNew: true,
 			},
 			"annotations": &schema.Schema{
 				Type:     schema.TypeMap,
 				Optional: true,
+				ForceNew: true,
 			},
 			"id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -52,6 +55,7 @@ func resourceCCEClusterV3() *schema.Resource {
 			"flavor": &schema.Schema{
 				Type:     schema.TypeString,
 				Required:true,
+				ForceNew: true,
 			},
 			"cluster_version": &schema.Schema{
 				Type:     schema.TypeString,
@@ -74,10 +78,12 @@ func resourceCCEClusterV3() *schema.Resource {
 			"vpc_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required:true,
+				ForceNew: true,
 			},
 			"subnet_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required:true,
+				ForceNew: true,
 			},
 			"highway_subnet_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -111,7 +117,7 @@ func resourceCCEClusterV3() *schema.Resource {
 	}
 }
 
-func resourceClusterLablesV3(d *schema.ResourceData) map[string]string {
+func resourceClusterLabelsV3(d *schema.ResourceData) map[string]string {
 	m :=make(map[string]string)
 	for key, val := range d.Get("labels").(map[string]interface{}) {
 		m[key] = val.(string)
@@ -147,7 +153,7 @@ func resourceCCEClusterV3Create(d *schema.ResourceData, meta interface{}) error 
 		Kind:      "Cluster",
 		ApiVersion:"v3",
 		Metadata:   clusters.CreateMetaData{Name: d.Get("name").(string),
-											Labels:resourceClusterLablesV3(d),
+											Labels:resourceClusterLabelsV3(d),
 											Annotations:resourceClusterAnnotationsV3(d)},
 		Spec: clusters.Spec{
 			Type:d.Get("cluster_type").(string),
