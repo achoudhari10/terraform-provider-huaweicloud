@@ -1,23 +1,23 @@
 package huaweicloud
 
 import (
-"fmt"
-"testing"
+	"fmt"
+	"testing"
 
-"github.com/hashicorp/terraform/helper/resource"
-"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccHWRtsStackResourcesV1DataSource_basic(t *testing.T) {
+func TestAccHuaweiCloudRTSStackResourcesV1DataSource_basic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceHWRtsStackResourcesV1Config,
+				Config: testAccDataSourceHuaweiCloudRTSStackResourcesV1Config,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackResourcesV1DataSourceID("data.huaweicloud_rts_stack_resource_v1.resource_1"),
+					testAccCheckHuaweiCloudRTSStackResourcesV1DataSourceID("data.huaweicloud_rts_stack_resource_v1.resource_1"),
 					resource.TestCheckResourceAttr(
 						"data.huaweicloud_rts_stack_resource_v1.resource_1", "resource_name", "random"),
 					resource.TestCheckResourceAttr(
@@ -30,7 +30,7 @@ func TestAccHWRtsStackResourcesV1DataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckHWRtsStackResourcesV1DataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckHuaweiCloudRTSStackResourcesV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -45,7 +45,7 @@ func testAccCheckHWRtsStackResourcesV1DataSourceID(n string) resource.TestCheckF
 	}
 }
 
-const testAccDataSourceHWRtsStackResourcesV1Config  = `
+const testAccDataSourceHuaweiCloudRTSStackResourcesV1Config = `
 
 resource "huaweicloud_rts_stack_resource_v1" "stack_1" {
   name = "huaweicloud_rts_stack"

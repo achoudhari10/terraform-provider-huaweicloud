@@ -27,8 +27,6 @@ type CreateOpts struct {
 	// creation fails. Default is true, meaning all resources are not deleted when
 	// stack creation fails.
 	DisableRollback *bool `json:"disable_rollback,omitempty"`
-	//Specifies files used in the environment.
-	Files map[string]string `json:"files,omitempty"`
 	// A structure that contains details for the environment of the stack.
 	EnvironmentOpts *Environment `json:"-"`
 	// User-defined parameters to pass to the template.

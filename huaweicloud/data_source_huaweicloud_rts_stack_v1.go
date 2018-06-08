@@ -2,17 +2,17 @@ package huaweicloud
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
 	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacktemplates"
-	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"reflect"
 	"unsafe"
-
 )
-func dataSourceStackV1() *schema.Resource {
+
+func dataSourceRTSStackV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceStackV1Read,
+		Read: dataSourceRTSStackV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
@@ -57,13 +57,13 @@ func dataSourceStackV1() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"capabilities":  &schema.Schema{
+			"capabilities": &schema.Schema{
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
-			"notification_topics":  &schema.Schema{
+			"notification_topics": &schema.Schema{
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -73,25 +73,23 @@ func dataSourceStackV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 		},
 	}
 }
 
-
-func dataSourceStackV1Read(d *schema.ResourceData, meta interface{}) error {
+func dataSourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloud rts client: %s", err)
+		return fmt.Errorf("Error creating OpenTelekomCloud rts client: %s", err)
 	}
 	listOpts := stacks.ListOpts{
-		Status:        	d.Get("status").(string),
-		Name: 			d.Get("name").(string),
-		ID:				d.Get("id").(string),
+		Status: d.Get("status").(string),
+		Name:   d.Get("name").(string),
+		ID:     d.Get("id").(string),
 	}
 
-	refinedStacks, err :=stacks.List(orchestrationClient, listOpts)
+	refinedStacks, err := stacks.List(orchestrationClient, listOpts)
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve stacks: %s", err)
 	}
@@ -112,32 +110,28 @@ func dataSourceStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("status", stack.Status)
 	d.Set("name", stack.Name)
 	d.Set("status_reason", stack.StatusReason)
-	d.Set("description", stack.Description)
-	d.Set("region", GetRegion(d, config))
 
 	n, err := stacks.Get(orchestrationClient, stack.Name, stack.ID).Extract()
-	log.Printf("[DEBUG] Retrieved n %+v", n)
+
 	d.Set("disable_rollback", n.DisableRollback)
 	d.Set("capabilities", n.Capabilities)
 	d.Set("notification_topics", n.NotificationTopics)
 	d.Set("timeout_mins", n.Timeout)
-
-
-	TemplateList, err := stacktemplates.Get(orchestrationClient, stack.Name, stack.ID).Extract()
-	log.Printf("[DEBUG] Retrieved TemplateList %+v", TemplateList)
+	d.Set("description", n.Description)
 	d.Set("outputs", flattenStackOutputs(n.Outputs))
 	d.Set("parameters", n.Parameters)
 
+	TemplateList, err := stacktemplates.Get(orchestrationClient, stack.Name, stack.ID).Extract()
 
-	fmt.Print(string(TemplateList))
 	template := BytesToString(TemplateList)
 	d.Set("template_body", template)
+	d.Set("region", GetRegion(d, config))
 
 	return nil
 }
 
 func BytesToString(b []byte) string {
 	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-	sh := reflect.StringHeader{bh.Data, bh.Len}
+	sh := reflect.StringHeader{Data: bh.Data, Len: bh.Len}
 	return *(*string)(unsafe.Pointer(&sh))
 }

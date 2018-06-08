@@ -12,51 +12,18 @@ import (
 )
 
 // PASS
-func TestAccHWRtsStackV1_basic(t *testing.T) {
-	var stacks stacks.RetrievedStack
+func TestAccHuaweiCloudRtsStackV1_basic(t *testing.T) {
+	var stack stacks.RetrievedStack
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHWRtsStackV1Destroy,
+		CheckDestroy: testAccCheckHuaweiCloudRtsStackV1Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRtsStackV1_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "name", "terraform_provider_stack"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "status", "CREATE_COMPLETE"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "description", "A HOT template that create a single server and boot from volume."),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "status_reason", "Stack CREATE completed successfully"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "disable_rollback", "true"),
-					resource.TestCheckResourceAttr(
-						"huaweicloud_rts_stack_v1.stack_1", "timeout_mins", "60"),
-
-
-				),
-
-			},
-		},
-	})
-}
-
-func TestAccHWRtsStackV1_update(t *testing.T) {
-	var stacks stacks.RetrievedStack
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHWRtsStackV1Destroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccRtsStackV1_basic,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckHuaweiCloudRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stack),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_rts_stack_v1.stack_1", "name", "terraform_provider_stack"),
 					resource.TestCheckResourceAttr(
@@ -74,7 +41,7 @@ func TestAccHWRtsStackV1_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccRtsStackV1_update,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckHuaweiCloudRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stack),
 					resource.TestCheckResourceAttr(
 						"huaweicloud_rts_stack_v1.stack_1", "disable_rollback", "false"),
 					resource.TestCheckResourceAttr(
@@ -89,25 +56,25 @@ func TestAccHWRtsStackV1_update(t *testing.T) {
 }
 
 // PASS
-func TestAccHWRtsStackV1_timeout(t *testing.T) {
-	var stacks stacks.RetrievedStack
+func TestAccHuaweiCloudRtsStackV1_timeout(t *testing.T) {
+	var stack stacks.RetrievedStack
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHWRtsStackV1Destroy,
+		CheckDestroy: testAccCheckHuaweiCloudRtsStackV1Destroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccRtsStackV1_timeout,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckHWRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stacks),
+					testAccCheckHuaweiCloudRtsStackV1Exists("huaweicloud_rts_stack_v1.stack_1", &stack),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckHWRtsStackV1Destroy(s *terraform.State) error {
+func testAccCheckHuaweiCloudRtsStackV1Destroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(OS_REGION_NAME)
 	if err != nil {
@@ -130,7 +97,7 @@ func testAccCheckHWRtsStackV1Destroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckHWRtsStackV1Exists(n string, stack *stacks.RetrievedStack) resource.TestCheckFunc {
+func testAccCheckHuaweiCloudRtsStackV1Exists(n string, stack *stacks.RetrievedStack) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {

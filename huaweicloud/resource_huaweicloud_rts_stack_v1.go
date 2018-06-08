@@ -1,26 +1,24 @@
 package huaweicloud
 
 import (
-"github.com/hashicorp/terraform/helper/schema"
-"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
-"time"
-
-"fmt"
-"github.com/hashicorp/terraform/helper/resource"
-"github.com/huaweicloud/golangsdk"
-"log"
+	"fmt"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huaweicloud/golangsdk"
+	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stacks"
+	"log"
+	"time"
 )
 
-func resourceRtsStackV1() *schema.Resource {
+func resourceRTSStackV1() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceRtsStackV1Create,
-		Read:   resourceRtsStackV1Read,
-		Update: resourceRtsStackV1Update,
-		Delete: resourceRtsStackV1Delete,
+		Create: resourceRTSStackV1Create,
+		Read:   resourceRTSStackV1Read,
+		Update: resourceRTSStackV1Update,
+		Delete: resourceRTSStackV1Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(3 * time.Minute),
@@ -48,9 +46,9 @@ func resourceRtsStackV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"template": &schema.Schema{
+			"template_body": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validateStackTemplate,
 				StateFunc: func(v interface{}) string {
 					template, _ := normalizeStackTemplate(v)
@@ -58,15 +56,14 @@ func resourceRtsStackV1() *schema.Resource {
 				},
 			},
 			"template_url": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-			},
-			"environment": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validateJsonString,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"files": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
+			"environment": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateJsonString,
@@ -116,17 +113,23 @@ func resourceRtsStackV1() *schema.Resource {
 	}
 }
 
-func resourceTemplateV1(d *schema.ResourceData) *stacks.Template {
+func resourceTemplateOptsV1(d *schema.ResourceData) *stacks.Template {
 	var template = new(stacks.Template)
-	if _, ok :=d.GetOk("template"); ok {
-		rawTemplate := d.Get("template").(string)
+	if _, ok := d.GetOk("template_body"); ok {
+		rawTemplate := d.Get("template_body").(string)
 		template.Bin = []byte(rawTemplate)
-		log.Printf("[DEBUG] template: %s", template)
 	}
-	if _, ok :=d.GetOk("template_url"); ok {
-		rawTemplate := d.Get("template_url").(string)
-		template.URL = rawTemplate
-		log.Printf("[DEBUG] template: %s", template)
+	if _, ok := d.GetOk("template_url"); ok {
+		rawTemplateUrl := d.Get("template_url").(string)
+		template.URL = rawTemplateUrl
+
+	}
+	if _, ok := d.GetOk("files"); ok {
+		rawFiles := make(map[string]string)
+		for key, val := range d.Get("files").(map[string]interface{}) {
+			rawFiles[key] = val.(string)
+		}
+		template.Files = rawFiles
 
 	}
 	return template
@@ -138,22 +141,14 @@ func resourceEnvironmentV1(d *schema.ResourceData) *stacks.Environment {
 	environment.Bin = []byte(rawTemplate)
 	return environment
 }
-func resourceParameterV1(d *schema.ResourceData) map[string]string {
+func resourceParametersV1(d *schema.ResourceData) map[string]string {
 	m := make(map[string]string)
 	for key, val := range d.Get("parameters").(map[string]interface{}) {
 		m[key] = val.(string)
 	}
 	return m
 }
-func resourceFilesV1(d *schema.ResourceData) map[string]string {
-	m := make(map[string]string)
-	for key, val := range d.Get("files").(map[string]interface{}) {
-		m[key] = val.(string)
-	}
-	return m
-}
-
-func resourceRtsStackV1Create(d *schema.ResourceData, meta interface{}) error {
+func resourceRTSStackV1Create(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 
@@ -166,58 +161,43 @@ func resourceRtsStackV1Create(d *schema.ResourceData, meta interface{}) error {
 	rollback := d.Get("disable_rollback").(bool)
 	createOpts := stacks.CreateOpts{
 		Name:            d.Get("name").(string),
-		TemplateOpts:    resourceTemplateV1(d),
-		Files:			 resourceFilesV1(d),
+		TemplateOpts:    resourceTemplateOptsV1(d),
 		DisableRollback: &rollback,
 		EnvironmentOpts: resourceEnvironmentV1(d),
-		Parameters:      resourceParameterV1(d),
+		Parameters:      resourceParametersV1(d),
 		Timeout:         d.Get("timeout_mins").(int),
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
 	n, err := stacks.Create(orchestrationClient, createOpts).Extract()
-
 	if err != nil {
 		return fmt.Errorf("Error creating HuaweiCloud stack: %s", err)
 	}
+	d.SetId(n.ID)
 
 	log.Printf("[INFO] stack ID: %s", n.ID)
 
-	log.Printf("[DEBUG] Waiting for HuaweiCloud stack (%s) to become available", n.ID)
-
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"CREATE_IN_PROGRESS",
-			"DELETE_IN_PROGRESS",
-			"ROLLBACK_IN_PROGRESS"},
-		Target: []string{"CREATE_COMPLETE",
-			"CREATE_FAILED",
-			"DELETE_COMPLETE",
-			"DELETE_FAILED",
-			"ROLLBACK_COMPLETE",
-			"ROLLBACK_FAILED"},
-		Refresh:    waitForStackActive(orchestrationClient, d.Get("name").(string), n.ID),
+		Pending:    []string{"CREATE_IN_PROGRESS"},
+		Target:     []string{"CREATE_COMPLETE"},
+		Refresh:    waitForRTSStackActive(orchestrationClient, d.Get("name").(string), n.ID),
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
-	out, err := stateConf.WaitForState()
-	d.SetId(n.ID)
-	stack := out.(*stacks.RetrievedStack)
+	_, stateErr := stateConf.WaitForState()
 
-	if stack.Status == "DELETE_COMPLETE" || stack.Status == "DELETE_FAILED" {
-		return fmt.Errorf("%s: %s", stack.Status, stack.StatusReason)
-	}
-	if stack.Status == "CREATE_FAILED" || stack.Status == "ROLLBACK_FAILED" {
-
-		return fmt.Errorf("%s: %s", stack.Status, stack.StatusReason)
+	if stateErr != nil {
+		return fmt.Errorf(
+			"Error waiting for Stack (%s) to become ACTIVE: %s",
+			n.ID, stateErr)
 	}
 
-	return resourceRtsStackV1Read(d, meta)
+	return resourceRTSStackV1Read(d, meta)
 
 }
 
-func resourceRtsStackV1Read(d *schema.ResourceData, meta interface{}) error {
+func resourceRTSStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
@@ -244,11 +224,12 @@ func resourceRtsStackV1Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("timeout_mins", n.Timeout)
 	d.Set("status", n.Status)
 	d.Set("id", n.ID)
+	d.Set("region", GetRegion(d, config))
 
 	return nil
 }
 
-func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
+func resourceRTSStackV1Update(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 	if err != nil {
@@ -257,7 +238,7 @@ func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
 
 	var updateOpts stacks.UpdateOpts
 
-	updateOpts.TemplateOpts = resourceTemplateV1(d)
+	updateOpts.TemplateOpts = resourceTemplateOptsV1(d)
 
 	if d.HasChange("environment") {
 
@@ -265,17 +246,19 @@ func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
 	}
 	if d.HasChange("parameters") {
 
-		updateOpts.Parameters = resourceParameterV1(d)
+		updateOpts.Parameters = resourceParametersV1(d)
 	}
 	if d.HasChange("timeout_mins") {
+
 		updateOpts.Timeout = d.Get("timeout_mins").(int)
+
 	}
 	if d.HasChange("disable_rollback") {
+
 		rollback := d.Get("disable_rollback").(bool)
 		updateOpts.DisableRollback = &rollback
-	}
 
-	log.Printf("[DEBUG] Updating Stack %s with options: %+v", d.Id(), updateOpts)
+	}
 
 	err = stacks.Update(orchestrationClient, d.Get("name").(string), d.Id(), updateOpts).ExtractErr()
 	if err != nil {
@@ -285,28 +268,24 @@ func resourceRtsStackV1Update(d *schema.ResourceData, meta interface{}) error {
 		Pending: []string{"UPDATE_IN_PROGRESS",
 			"CREATE_COMPLETE",
 			"ROLLBACK_IN_PROGRESS"},
-		Target: []string{"UPDATE_COMPLETE",
-			"UPDATE_FAILED",
-			"ROLLBACK_COMPLETE",
-			"ROLLBACK_FAILED"},
-		Refresh:    waitForStackUpdate(orchestrationClient, d.Get("name").(string), d.Id()),
+		Target:     []string{"UPDATE_COMPLETE"},
+		Refresh:    waitForRTSStackUpdate(orchestrationClient, d.Get("name").(string), d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
-	out, err := stateConf.WaitForState()
-	stack := out.(*stacks.RetrievedStack)
+	_, stateErr := stateConf.WaitForState()
 
-	if stack.Status == "ROLLBACK_COMPLETE" || stack.Status == "ROLLBACK_FAILED" || stack.Status == "UPDATE_FAILED" {
-
-		return fmt.Errorf("%s: %s", stack.Status, stack.StatusReason)
+	if stateErr != nil {
+		return fmt.Errorf(
+			"Error waiting for updating stack: %s", stateErr)
 	}
 
-	return resourceRtsStackV1Read(d, meta)
+	return resourceRTSStackV1Read(d, meta)
 }
 
-func resourceRtsStackV1Delete(d *schema.ResourceData, meta interface{}) error {
+func resourceRTSStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] Destroy Stack: %s", d.Id())
 
 	config := meta.(*Config)
@@ -326,14 +305,14 @@ func resourceRtsStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 			"ROLLBACK_IN_PROGRESS"},
 		Target: []string{"DELETE_COMPLETE",
 			"DELETE_FAILED"},
-		Refresh:    waitForStackDelete(orchestrationClient, d.Get("name").(string), d.Id()),
+		Refresh:    waitForRTSStackDelete(orchestrationClient, d.Get("name").(string), d.Id()),
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
 	out, err := stateConf.WaitForState()
-	log.Printf("[DEBUG] outwait %+v", out)
+
 	if err != nil {
 		return fmt.Errorf("Error deleting HuaweiCloud Stack: %s", err)
 	}
@@ -349,27 +328,29 @@ func resourceRtsStackV1Delete(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func waitForStackActive(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
+func waitForRTSStackActive(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := stacks.Get(orchestrationClient, stackName, stackId).Extract()
 		if err != nil {
 			return nil, "", err
 		}
-
-		log.Printf("[DEBUG] HuaweiCloud stack: %+v", n)
+		log.Printf("[INFO] HuaweiCloud stack: %+v", n)
 		if n.Status == "CREATE_IN_PROGRESS" {
 			return n, n.Status, nil
 		}
 
+		if n.Status == "CREATE_FAILED" {
+			return nil, "", fmt.Errorf("%s: %s", n.Status, n.StatusReason)
+		}
 		return n, n.Status, nil
 	}
 }
 
-func waitForStackDelete(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
+func waitForRTSStackDelete(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		log.Printf("[DEBUG] Attempting to delete HuaweiCloud Stack %s.\n", stackId)
 		r, err := stacks.Get(orchestrationClient, stackName, stackId).Extract()
-		log.Printf("[DEBUG] Value after extract: %#v", r)
+
 		if r.Status == "DELETE_COMPLETE" {
 			log.Printf("[INFO] Successfully deleted HuaweiCloud stack %s", r.ID)
 			return r, "DELETE_COMPLETE", nil
@@ -395,7 +376,7 @@ func waitForStackDelete(orchestrationClient *golangsdk.ServiceClient, stackName 
 	}
 }
 
-func waitForStackUpdate(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
+func waitForRTSStackUpdate(orchestrationClient *golangsdk.ServiceClient, stackName string, stackId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		n, err := stacks.Get(orchestrationClient, stackName, stackId).Extract()
 		if err != nil {
@@ -405,6 +386,10 @@ func waitForStackUpdate(orchestrationClient *golangsdk.ServiceClient, stackName 
 		log.Printf("[DEBUG] HuaweiCloud stack: %+v", n)
 		if n.Status == "UPDATE_IN_PROGRESS" {
 			return n, "UPDATE_IN_PROGRESS", nil
+		}
+		if n.Status == "ROLLBACK_COMPLETE" || n.Status == "ROLLBACK_FAILED" || n.Status == "UPDATE_FAILED" {
+
+			return nil, "", fmt.Errorf("%s: %s", n.Status, n.StatusReason)
 		}
 
 		return n, n.Status, nil

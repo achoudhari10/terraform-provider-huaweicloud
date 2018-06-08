@@ -1,14 +1,15 @@
 package huaweicloud
+
 import (
 	"fmt"
-	"log"
-	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/rts/v1/stackresources"
+	"log"
 )
 
-func dataSourceRtsStackResourcesV1() *schema.Resource {
+func dataSourceRTSStackResourcesV1() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceRtsStackResourcesV1Read,
+		Read: dataSourceRTSStackResourcesV1Read,
 
 		Schema: map[string]*schema.Schema{
 			"region": &schema.Schema{
@@ -33,23 +34,7 @@ func dataSourceRtsStackResourcesV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"links": &schema.Schema{
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"rel": &schema.Schema{
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"required_by":&schema.Schema{
+			"required_by": &schema.Schema{
 				Type:     schema.TypeSet,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -65,7 +50,7 @@ func dataSourceRtsStackResourcesV1() *schema.Resource {
 			},
 			"physical_resource_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional:true,
+				Optional: true,
 			},
 			"resource_type": &schema.Schema{
 				Type:     schema.TypeString,
@@ -75,7 +60,7 @@ func dataSourceRtsStackResourcesV1() *schema.Resource {
 	}
 }
 
-func dataSourceRtsStackResourcesV1Read(d *schema.ResourceData,  meta interface{}) error {
+func dataSourceRTSStackResourcesV1Read(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 	orchestrationClient, err := config.orchestrationV1Client(GetRegion(d, config))
 
@@ -87,13 +72,13 @@ func dataSourceRtsStackResourcesV1Read(d *schema.ResourceData,  meta interface{}
 		Type:       d.Get("resource_type").(string),
 	}
 
-	refinedResources ,err := stackresources.List(orchestrationClient,d.Get("stack_name").(string),d.Get("stack_id").(string),listOpts)
-	log.Printf("[DEBUG] Value of allResources: %#v", refinedResources)
+	refinedResources, err := stackresources.List(orchestrationClient, d.Get("stack_name").(string), d.Get("stack_id").(string), listOpts)
+	log.Printf("[INFO] Value of allResources: %#v", refinedResources)
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve Resources: %s", err)
 	}
 
-	if  refinedResources == nil ||len(refinedResources) == 0 {
+	if refinedResources == nil || len(refinedResources) == 0 {
 		return fmt.Errorf("No matching resource found. " +
 			"Please change your search criteria and try again.")
 	}
@@ -103,18 +88,7 @@ func dataSourceRtsStackResourcesV1Read(d *schema.ResourceData,  meta interface{}
 	}
 
 	resources := refinedResources[0]
-
-	log.Printf("[DEBUG] Retrieved Resources using given filter %s: %+v", resources.Name,resources)
 	d.SetId(resources.Name)
-
-	var s []map[string]interface{}
-	for _, stack := range resources.Links {
-		mapping := map[string]interface{}{
-			"href": stack.Href,
-			"rel":  stack.Rel,
-		}
-		s = append(s, mapping)
-	}
 
 	d.Set("resource_name", resources.Name)
 	d.Set("resource_status", resources.Status)
@@ -124,8 +98,5 @@ func dataSourceRtsStackResourcesV1Read(d *schema.ResourceData,  meta interface{}
 	d.Set("resource_status_reason", resources.StatusReason)
 	d.Set("resource_type", resources.Type)
 	d.Set("region", GetRegion(d, config))
-	if err := d.Set("links", s); err != nil {
-		return err
-	}
 	return nil
 }

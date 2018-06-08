@@ -1,4 +1,5 @@
 package huaweicloud
+
 import (
 	"fmt"
 	"testing"
@@ -16,7 +17,7 @@ func TestAccHuaweiCloudRtsStackV1DataSource_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccHuaweiCloudRtsStackV1DataSource_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRtsStackV1DataSourceID("data.huaweicloud_rts_stack_v1.stacks"),
+					testAccCheckHuaweiCloudRtsStackV1DataSourceID("data.huaweicloud_rts_stack_v1.stacks"),
 					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "name", "huaweicloud_rts_stacktest"),
 					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "description", "A HOT template that create a single server and boot from volume."),
 					resource.TestCheckResourceAttr("data.huaweicloud_rts_stack_v1.stacks", "disable_rollback", "true"),
@@ -27,7 +28,7 @@ func TestAccHuaweiCloudRtsStackV1DataSource_basic(t *testing.T) {
 	})
 }
 
-func testAccCheckRtsStackV1DataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckHuaweiCloudRtsStackV1DataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -84,5 +85,3 @@ data "huaweicloud_rts_stack_v1" "stacks" {
        
 }
 `
-
-
